@@ -4,8 +4,8 @@ import "gorm.io/gorm"
 
 type Repository interface {
 	FindAll() ([]Book, error)
-	FindByID() (Book, error)
-	Create() (Book, error)
+	FindByID(ID int) (Book, error)
+	Create(book Book) (Book, error)
 }
 
 type repository struct {

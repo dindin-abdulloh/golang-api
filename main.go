@@ -3,7 +3,6 @@ package main
 import (
 	"api-library/book"
 	"api-library/handlers"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
@@ -16,13 +15,12 @@ func main() {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	// db.AutoMigrate(&book.Book{})
+
+	db.AutoMigrate(&book.Book{})
 
 	bookRepository := book.NewRepository(db)
-
-	books, err := bookRepository.FindByID(4)
-
-	fmt.Println(books)
+	bookService := book.NewService(bookRepository)
+	bookHandler := handlers.NewBookHandler(bookService)
 
 	// for _, book := range books {
 	// 	fmt.Println("Tittle :", book.Tittle)
@@ -32,15 +30,22 @@ func main() {
 
 	v1 := r.Group("/v1")
 
-	v1.GET("/", handlers.RouteHandler)
+	v1.GET("/", bookHandler.RouteHandler)
 
-	v1.GET("/hello", handlers.HelloHandler)
+	v1.GET("/hello", bookHandler.HelloHandler)
 
-	v1.GET("/books/:id", handlers.HandlerBooks)
+	v1.GET("/books/:id", bookHandler.HandlerBooks)
 
-	v1.POST("/books", handlers.BookPostHandler)
+	v1.POST("/books", bookHandler.BookPostHandler)
 
-	v1.GET("/query", handlers.QueryHandler)
+	v1.GET("/query", bookHandler.QueryHandler)
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
+
+// main
+// handler
+// service
+// repository
+// db
+// mysql
