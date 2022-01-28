@@ -30,19 +30,13 @@ func main() {
 
 	v1 := r.Group("/v1")
 
-	v1.GET("/", bookHandler.RouteHandler)
-
-	v1.GET("/hello", bookHandler.HelloHandler)
-
-	v1.GET("/books/:id", bookHandler.HandlerBooks)
-
 	v1.POST("/books", bookHandler.BookPostHandler)
-
-	v1.GET("/query", bookHandler.QueryHandler)
+	v1.GET("/books", bookHandler.GetBooks)
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
+// ++++SKEMA++++
 // main
 // handler
 // service

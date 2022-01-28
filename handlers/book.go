@@ -18,28 +18,18 @@ func NewBookHandler(bookService book.Service) *bookHandler {
 	return &bookHandler{bookService}
 }
 
-func (h *bookHandler) RouteHandler(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"message": "pong",
+// GET
+func (h *bookHandler) GetBooks(ctx *gin.Context) {
+	books, err := h.bookService.FindAll()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": books,
 	})
-}
-
-func (h *bookHandler) HelloHandler(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"message": "INI HELLO",
-	})
-}
-
-func (h *bookHandler) HandlerBooks(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	ctx.JSON(http.StatusOK, gin.H{"id": id})
-}
-
-func (h *bookHandler) QueryHandler(ctx *gin.Context) {
-	title := ctx.Query("title")
-
-	ctx.JSON(http.StatusOK, gin.H{"title": title})
 }
 
 // POST
