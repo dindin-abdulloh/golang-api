@@ -13,24 +13,20 @@ import (
 func main() {
 	dsn := "root:@tcp(127.0.0.1:3306)/test_db?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
 	if err != nil {
 		panic("failed to connect database")
 	}
+	// db.AutoMigrate(&book.Book{})
 
-	db.AutoMigrate(&book.Book{})
+	bookRepository := book.NewRepository(db)
 
-	book := book.Book{}
-	book.Tittle = "Ini title"
-	book.Description = "Ini Descripsi"
-	book.Price = 2000
-	book.Rating = 5
-	book.Discount = 15
+	books, err := bookRepository.FindByID(4)
 
-	err = db.Create(&book).Error
-	if err != nil {
-		fmt.Println("Data Tersimpan")
-	}
+	fmt.Println(books)
+
+	// for _, book := range books {
+	// 	fmt.Println("Tittle :", book.Tittle)
+	// }
 
 	r := gin.Default()
 
