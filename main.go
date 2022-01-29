@@ -30,8 +30,9 @@ func main() {
 
 	v1 := r.Group("/v1")
 
-	v1.POST("/books", bookHandler.BookPostHandler)
+	v1.POST("/books", bookHandler.CreateBook)
 	v1.GET("/books", bookHandler.GetBooks)
+	v1.GET("/books/:id", bookHandler.GetBook)
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

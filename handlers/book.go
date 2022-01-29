@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"api-library/book"
 
@@ -26,10 +27,37 @@ func (h *bookHandler) GetBooks(ctx *gin.Context) {
 			"error": err,
 		})
 		return
+
+	}
+	var booksResponse []book.BookResponse
+
+	for _, b := range books {
+		bookResponse := convertBookResponse(b)
+
+		booksResponse = append(booksResponse, bookResponse)
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": books,
+		"data": booksResponse,
 	})
+}
+
+// GET BY ID
+func (h *bookHandler) GetBook(ctx *gin.Context) {
+	idString := ctx.Param("id")
+	id, _ := strconv.Atoi(idString)
+
+	b, err := h.bookService.FindByID(id)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
+	bookResponse := convertBookResponse(b)
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": bookResponse,
+	})
+
 }
 
 // POST
@@ -62,4 +90,16 @@ func (h *bookHandler) BookPostHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": book,
 	})
+}
+
+// Privat function for convert response
+func convertBookResponse(b book.Book) book.BookResponse {
+	return book.BookResponse{
+		ID:          b.ID,
+		Tittle:      b.Tittle,
+		Price:       b.Price,
+		Description: b.Description,
+		Rating:      b.Rating,
+		Discount:    b.Discount,
+	}
 }
