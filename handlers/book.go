@@ -46,7 +46,8 @@ func (h *bookHandler) GetBook(ctx *gin.Context) {
 	idString := ctx.Param("id")
 	id, _ := strconv.Atoi(idString)
 
-	b, err := h.bookService.FindByID(id)
+	b, err := h.bookService.FindByID(int(id))
+
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err,
@@ -61,7 +62,7 @@ func (h *bookHandler) GetBook(ctx *gin.Context) {
 }
 
 // POST
-func (h *bookHandler) BookPostHandler(ctx *gin.Context) {
+func (h *bookHandler) CreateBook(ctx *gin.Context) {
 	var bookRequest book.BookRequest
 
 	err := ctx.ShouldBindJSON(&bookRequest)
@@ -88,8 +89,64 @@ func (h *bookHandler) BookPostHandler(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": book,
+		"data": convertBookResponse(book),
 	})
+}
+
+// PUT
+
+func (h *bookHandler) UpdateBook(ctx *gin.Context) {
+	var bookRequest book.BookRequest
+
+	err := ctx.ShouldBindJSON(&bookRequest)
+
+	if err != nil {
+		errorMessages := []string{}
+		for _, e := range err.(validator.ValidationErrors) {
+			errorMessage := fmt.Sprintf("Error on field %s, condition: %s", e.Field(), e.ActualTag())
+			errorMessages = append(errorMessages, errorMessage)
+		}
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"errors": errorMessages,
+		})
+
+	}
+
+	idString := ctx.Param("id")
+	id, _ := strconv.Atoi(idString)
+
+	book, err := h.bookService.Update(id, bookRequest)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": convertBookResponse(book),
+	})
+}
+
+// DELETE
+func (h *bookHandler) DeleteBook(ctx *gin.Context) {
+	idString := ctx.Param("id")
+	id, _ := strconv.Atoi(idString)
+
+	b, err := h.bookService.FindByID(int(id))
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
+	bookResponse := convertBookResponse(b)
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": bookResponse,
+	})
+
 }
 
 // Privat function for convert response
